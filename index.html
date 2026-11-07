@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚂 Экспресс знаний — Дроби (4 класс)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #ff8c42;
+    --blue: #4fc3f7;
+    --pink: #ff6b9d;
+    --green: #7ed957;
+    --yellow: #ffd93d;
+    --purple: #b39ddb;
+    --dark: #3d3d3d;
+  }
+  body {
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Chalkboard SE', cursive, sans-serif;
+    background: linear-gradient(135deg, #ffe5b4 0%, #b5e8ff 50%, #ffc3e1 100%);
+    min-height: 100vh;
+    color: var(--dark);
+    padding: 10px;
+    overflow-x: hidden;
+  }
+  .screen { display: none; max-width: 1200px; margin: 0 auto; }
+  .screen.active { display: block; }
+  h1 {
+    text-align: center;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--orange);
+    text-shadow: 3px 3px 0 #fff, 5px 5px 0 rgba(0,0,0,0.1);
+    margin: 10px 0;
+  }
+  h2 { font-size: clamp(1.3rem, 3.5vw, 2rem); margin: 10px 0; color: var(--pink); }
+  .card {
+    background: #fff;
+    border: 4px solid var(--dark);
+    border-radius: 25px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 6px 6px 0 var(--dark);
+  }
+  .btn {
+    font-family: inherit;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: bold;
+    padding: 15px 25px;
+    border: 3px solid var(--dark);
+    border-radius: 18px;
+    cursor: pointer;
+    background: var(--yellow);
+    box-shadow: 4px 4px 0 var(--dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    margin: 5px;
+  }
+  .btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--dark); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--dark); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-orange { background: var(--orange); color: #fff; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-pink { background: var(--pink); color: #fff; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-purple { background: var(--purple); color: #fff; }
+  input[type="text"] {
+    font-family: inherit;
+    font-size: 1.1rem;
+    padding: 10px 15px;
+    border: 3px solid var(--dark);
+    border-radius: 15px;
+    width: 100%;
+    max-width: 300px;
+    margin: 5px;
+  }
+  .setup-box { text-align: center; }
+  .player-count { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
+  .count-btn {
+    width: 70px; height: 70px;
+    font-size: 2rem;
+    border-radius: 50%;
+    border: 3px solid var(--dark);
+    background: var(--yellow);
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--dark);
+    font-family: inherit;
+    font-weight: bold;
+  }
+  .count-btn.selected { background: var(--orange); color: #fff; }
+  .names-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 15px 0; }
+  .name-input { display: flex; align-items: center; gap: 8px; }
+  .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--dark); flex-shrink: 0; }
+  .game-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  @media (min-width: 900px) {
+    .game-layout { grid-template-columns: 2fr 1fr; }
+  }
+  .board-wrap { position: relative; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    padding: 10px;
+    background: linear-gradient(135deg, #fff9e6, #ffe4f1);
+    border: 4px solid var(--dark);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--dark);
+  }
+  .cell {
+    aspect-ratio: 1;
+    border: 3px solid var(--dark);
+    border-radius: 15px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    font-weight: bold;
+    padding: 2px;
+    transition: transform 0.2s;
+    overflow: hidden;
+  }
+  .cell.start { background: linear-gradient(135deg, #7ed957, #b8f080); }
+  .cell.finish { background: linear-gradient(135deg, #ffd93d, #ffeb85); }
+  .cell.station { background: linear-gradient(135deg, #b5e8ff, #d4f1ff); }
+  .cell .num { font-size: clamp(0.8rem, 2.2vw, 1.2rem); color: var(--dark); }
+  .cell .emoji { font-size: clamp(0.9rem, 2.5vw, 1.5rem); }
+  .tokens-layer {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    pointer-events: none;
+  }
+  .token {
+    position: absolute;
+    width: clamp(22px, 4vw, 36px);
+    height: clamp(22px, 4vw, 36px);
+    border-radius: 50%;
+    border: 3px solid var(--dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: clamp(0.7rem, 1.8vw, 1rem);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 2px 2px 0 var(--dark);
+    z-index: 5;
+  }
+  .token.current {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 4px var(--yellow), 3px 3px 0 var(--dark);
+    z-index: 10;
+    animation: bounce 1s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: scale(1.25) translateY(0); }
+    50% { transform: scale(1.25) translateY(-6px); }
+  }
+  .side-panel { display: flex; flex-direction: column; gap: 10px; }
+  .turn-info {
+    background: #fff;
+    border: 4px solid var(--dark);
+    border-radius: 20px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 5px 5px 0 var(--dark);
+  }
+  .current-player-name {
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  .positions { display: flex; flex-direction: column; gap: 6px; }
+  .pos-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: #fff;
+    border: 2px solid var(--dark);
+    border-radius: 12px;
+    font-weight: bold;
+  }
+  .pos-row.active { background: var(--yellow); }
+  .dice-area { text-align: center; padding: 10px; }
+  .dice {
+    width: clamp(80px, 18vw, 120px);
+    height: clamp(80px, 18vw, 120px);
+    background: #fff;
+    border: 4px solid var(--dark);
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: bold;
+    color: var(--orange);
+    box-shadow: 5px 5px 0 var(--dark);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+  }
+  .dice:hover:not(:disabled) { transform: translate(2px, 2px); box-shadow: 3px 3px 0 var(--dark); }
+  .dice.rolling { animation: shake 0.5s infinite; }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+  }
+  .dice:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+  }
+  .modal-bg.active { display: flex; }
+  .modal {
+    background: #fff;
+    border: 5px solid var(--dark);
+    border-radius: 25px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 8px 8px 0 var(--dark);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .q-title {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--pink);
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #fff9e6;
+    border: 3px dashed var(--orange);
+    border-radius: 15px;
+  }
+  .options { display: grid; gap: 10px; }
+  .option-btn {
+    font-family: inherit;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    padding: 14px;
+    border: 3px solid var(--dark);
+    border-radius: 15px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: 3px 3px 0 var(--dark);
+    transition: all 0.15s;
+    font-weight: bold;
+  }
+  .option-btn:hover:not(:disabled) { background: var(--yellow); transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--dark); }
+  .option-btn:disabled { cursor: not-allowed; }
+  .option-btn.correct { background: var(--green); color: #fff; }
+  .option-btn.wrong { background: var(--pink); color: #fff; }
+  .feedback {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 15px;
+    border: 3px solid var(--dark);
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    display: none;
+    line-height: 1.5;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #d4f7c5; }
+  .feedback.bad { background: #ffd1dc; }
+  .winner-box { text-align: center; }
+  .trophy { font-size: clamp(5rem, 15vw, 9rem); animation: spin 2s infinite; }
+  @keyframes spin {
+    0%, 100% { transform: rotate(-10deg) scale(1); }
+    50% { transform: rotate(10deg) scale(1.1); }
+  }
+  .final-list { margin: 15px 0; }
+  .final-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border: 3px solid var(--dark);
+    border-radius: 15px;
+    margin: 6px 0;
+    background: #fff;
+    font-weight: bold;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+  }
+  .final-row.gold { background: linear-gradient(135deg, #ffd93d, #ffeb85); }
+  .clouds {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 80px;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.4;
+  }
+  .cloud {
+    position: absolute;
+    font-size: 3rem;
+    animation: drift 30s linear infinite;
+  }
+  @keyframes drift {
+    from { transform: translateX(-100px); }
+    to { transform: translateX(calc(100vw + 100px)); }
+  }
+  .rules-list { padding-left: 25px; }
+  .rules-list li { margin: 6px 0; font-size: clamp(0.95rem, 2.3vw, 1.1rem); }
+  @media (max-width: 500px) {
+    .board { gap: 4px; padding: 6px; }
+    .cell { border-radius: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="clouds">
+  <div class="cloud" style="top:10px; animation-delay:0s;">☁️</div>
+  <div class="cloud" style="top:40px; animation-delay:-10s;">☁️</div>
+  <div class="cloud" style="top:20px; animation-delay:-20s;">☁️</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="screen active">
+  <h1>🚂 Экспресс знаний 🚃</h1>
+  <h2 style="text-align:center;">Дроби — 4 класс (по Петерсон)</h2>
+  <div class="card setup-box">
+    <h2>📜 Легенда</h2>
+    <p style="font-size:clamp(1rem,2.5vw,1.2rem); line-height:1.5;">
+      Скоростной поезд <b>«Экспресс знаний»</b> отправляется в путешествие по
+      удивительной <b>Стране Дробей</b>! На его пути — 25 станций, на каждой
+      ждут задания на дроби. Помоги машинисту и пассажирам добраться до
+      финальной станции <b>«Победная»</b>, решая весёлые задачи!
+    </p>
+  </div>
+  <div class="card">
+    <h2>📋 Правила</h2>
+    <ol class="rules-list">
+      <li>Выбери количество игроков (2–4) и введи их имена.</li>
+      <li>Игроки по очереди бросают кубик 🎲.</li>
+      <li>Фишка передвигается на выпавшее число клеток.</li>
+      <li>На клетке открывается вопрос с 4 вариантами ответа.</li>
+      <li>✅ Правильный ответ — фишка остаётся на новой клетке.</li>
+      <li>❌ Ошибка — фишка возвращается назад, показывается правильный ответ.</li>
+      <li>🏆 Побеждает тот, кто первым достигнет финиша!</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h2>👥 Настройка игры</h2>
+    <p style="margin-bottom:10px;"><b>Количество игроков:</b></p>
+    <div class="player-count">
+      <button class="count-btn selected" data-count="2">2</button>
+      <button class="count-btn" data-count="3">3</button>
+      <button class="count-btn" data-count="4">4</button>
+    </div>
+    <div id="names-container" class="names-grid"></div>
+    <button id="start-btn" class="btn btn-green" style="font-size:1.5rem; padding:18px 40px; margin-top:15px;">
+      🚂 Поехали!
+    </button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <h1>🚂 Экспресс знаний 🚃</h1>
+  <div class="game-layout">
+    <div class="board-wrap">
+      <div id="board" class="board"></div>
+      <div id="tokens-layer" class="tokens-layer"></div>
+    </div>
+    <div class="side-panel">
+      <div class="turn-info">
+        <div style="font-size:0.95rem;">Сейчас ходит:</div>
+        <div id="current-player" class="current-player-name">—</div>
+        <div class="dice-area">
+          <div id="dice" class="dice">🎲</div>
+          <div style="margin-top:8px; font-size:0.9rem;">Нажми на кубик!</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2 style="font-size:1.2rem;">📍 Позиции</h2>
+        <div id="positions" class="positions"></div>
+      </div>
+      <button id="restart-btn" class="btn btn-purple">🔄 Новая игра</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUESTION MODAL -->
+<div id="question-modal" class="modal-bg">
+  <div class="modal">
+    <div id="q-title" class="q-title">🚉 Станция №1</div>
+    <div id="q-text" class="q-text">Вопрос</div>
+    <div id="options" class="options"></div>
+    <div id="feedback" class="feedback"></div>
+    <button id="next-turn-btn" class="btn btn-blue" style="display:none; margin-top:15px; width:100%;">
+      ▶ Следующий ход
+    </button>
+  </div>
+</div>
+
+<!-- FINAL SCREEN -->
+<div id="final-screen" class="screen">
+  <h1>🏆 Финиш! 🏆</h1>
+  <div class="card winner-box">
+    <div class="trophy">🏆</div>
+    <h2 id="winner-name">Победитель!</h2>
+    <p style="font-size:clamp(1rem,2.5vw,1.2rem); margin:10px 0;">
+      Поезд прибыл на станцию <b>«Победная»</b>! 🎉
+    </p>
+    <div id="final-list" class="final-list"></div>
+    <button id="play-again-btn" class="btn btn-green" style="font-size:1.4rem; padding:18px 40px;">
+      🔄 Играть снова
+    </button>
+  </div>
+</div>
+
+<script>
+// ========== ВОПРОСЫ (25 штук) ==========
+// Тип 1: Найти часть от числа
+// Тип 2: Найти целое по его части
+// Тип 3: Найти часть, потом остаток
+// Тип 4: Сравнение дробей (НОВОЕ!)
+const QUESTIONS = [
+  // === ЧАСТЬ ОТ ЧИСЛА ===
+  {q:"Найди 1/2 от числа 10", opts:["5","2","10","20"], correct:0,
+   exp:"Чтобы найти часть от числа, делим число на знаменатель: 10 : 2 = 5."},
+  {q:"Найди 1/3 от числа 9", opts:["6","3","9","27"], correct:1,
+   exp:"Делим число на знаменатель: 9 : 3 = 3."},
+  {q:"Найди 1/4 от числа 12", opts:["4","3","6","8"], correct:1,
+   exp:"Делим число на знаменатель: 12 : 4 = 3."},
+  {q:"Найди 1/5 от числа 20", opts:["5","10","4","15"], correct:2,
+   exp:"Делим число на знаменатель: 20 : 5 = 4."},
+  {q:"Найди 1/2 от числа 16", opts:["4","8","32","6"], correct:1,
+   exp:"Делим число на знаменатель: 16 : 2 = 8."},
+  {q:"Найди 1/3 от числа 18", opts:["9","3","6","12"], correct:2,
+   exp:"Делим число на знаменатель: 18 : 3 = 6."},
+
+  // === ЦЕЛОЕ ПО ЧАСТИ ===
+  {q:"1/2 числа равна 6. Чему равно всё число?", opts:["3","12","8","6"], correct:1,
+   exp:"Чтобы найти число по его части, умножаем часть на знаменатель: 6 × 2 = 12."},
+  {q:"1/3 числа равна 4. Чему равно всё число?", opts:["7","12","3","8"], correct:1,
+   exp:"Умножаем часть на знаменатель: 4 × 3 = 12."},
+  {q:"1/4 числа равна 5. Чему равно всё число?", opts:["9","15","20","25"], correct:2,
+   exp:"Умножаем часть на знаменатель: 5 × 4 = 20."},
+  {q:"1/5 числа равна 3. Чему равно всё число?", opts:["8","15","12","10"], correct:1,
+   exp:"Умножаем часть на знаменатель: 3 × 5 = 15."},
+  {q:"1/2 числа равна 7. Чему равно всё число?", opts:["9","14","10","21"], correct:1,
+   exp:"Умножаем часть на знаменатель: 7 × 2 = 14."},
+
+  // === СНАЧАЛА ЧАСТЬ, ПОТОМ ОСТАТОК ===
+  {q:"В книге 60 страниц. Маша прочитала 1/3 книги. Сколько страниц ей осталось прочитать?",
+   opts:["20","40","30","15"], correct:1,
+   exp:"📖 Шаг 1: Найдём, сколько прочитала: 60 : 3 = 20 стр.<br>📖 Шаг 2: Найдём остаток: 60 − 20 = 40 стр."},
+  {q:"В саду 40 деревьев. 1/4 всех деревьев — яблони. Сколько в саду деревьев, не яблонь?",
+   opts:["10","20","30","40"], correct:2,
+   exp:"🌳 Шаг 1: Найдём яблони: 40 : 4 = 10.<br>🌳 Шаг 2: Найдём остальные: 40 − 10 = 30."},
+  {q:"У Пети было 50 рублей. Он потратил 1/5 всех денег. Сколько рублей у него осталось?",
+   opts:["10","25","40","45"], correct:2,
+   exp:"💰 Шаг 1: Потратил: 50 : 5 = 10 руб.<br>💰 Шаг 2: Осталось: 50 − 10 = 40 руб."},
+  {q:"В классе 30 учеников. 1/3 класса — девочки. Сколько мальчиков в классе?",
+   opts:["10","15","20","25"], correct:2,
+   exp:"👧 Шаг 1: Девочек: 30 : 3 = 10.<br>👦 Шаг 2: Мальчиков: 30 − 10 = 20."},
+  {q:"В магазине было 24 кг яблок. Продали 1/4 всех яблок. Сколько кг яблок осталось?",
+   opts:["6","12","18","20"], correct:2,
+   exp:"🍎 Шаг 1: Продали: 24 : 4 = 6 кг.<br>🍎 Шаг 2: Осталось: 24 − 6 = 18 кг."},
+
+  // === СРАВНЕНИЕ ДРОБЕЙ ===
+  {q:"Сравни дроби: 3/7 и 5/7",
+   opts:["3/7 > 5/7","3/7 < 5/7","3/7 = 5/7","Нельзя сравнить"], correct:1,
+   exp:"⚖️ Знаменатели одинаковые (7). Сравниваем числители: 3 < 5, значит 3/7 < 5/7.<br><b>Правило:</b> при одинаковых знаменателях больше та дробь, у которой числитель больше."},
+  {q:"Сравни дроби: 1/3 и 1/5",
+   opts:["1/3 > 1/5","1/3 < 1/5","1/3 = 1/5","Нельзя сравнить"], correct:0,
+   exp:"⚖️ Числители одинаковые (1). Сравниваем знаменатели: 3 < 5, значит 1/3 > 1/5.<br><b>Правило:</b> при одинаковых числителях больше та дробь, у которой знаменатель МЕНЬШЕ (часть крупнее)."},
+  {q:"Сравни дроби: 2/9 и 5/9",
+   opts:["2/9 > 5/9","2/9 < 5/9","2/9 = 5/9","Нельзя сравнить"], correct:1,
+   exp:"⚖️ Знаменатели одинаковые (9). Сравниваем числители: 2 < 5, значит 2/9 < 5/9."},
+  {q:"Сравни дроби: 1/2 и 1/4",
+   opts:["1/2 > 1/4","1/2 < 1/4","1/2 = 1/4","Нельзя сравнить"], correct:0,
+   exp:"⚖️ Числители одинаковые (1). Чем больше знаменатель — тем меньше часть. 2 < 4, значит 1/2 > 1/4."},
+  {q:"Сравни дроби: 4/6 и 2/6",
+   opts:["4/6 > 2/6","4/6 < 2/6","4/6 = 2/6","Нельзя сравнить"], correct:0,
+   exp:"⚖️ Знаменатели одинаковые (6). Сравниваем числители: 4 > 2, значит 4/6 > 2/6."},
+  {q:"Сравни дроби: 1/6 и 1/8",
+   opts:["1/6 > 1/8","1/6 < 1/8","1/6 = 1/8","Нельзя сравнить"], correct:0,
+   exp:"⚖️ Числители одинаковые (1). Чем больше знаменатель — тем меньше часть. 6 < 8, значит 1/6 > 1/8."},
+  {q:"Сравни дроби: 7/10 и 3/10",
+   opts:["7/10 > 3/10","7/10 < 3/10","7/10 = 3/10","Нельзя сравнить"], correct:0,
+   exp:"⚖️ Знаменатели одинаковые (10). Сравниваем числители: 7 > 3, значит 7/10 > 3/10."}
+];
+
+const STATIONS = {
+  1: {name:"Старт", emoji:"🚂", type:"start"},
+  5: {name:"Читай-город", emoji:"📖", type:"station"},
+  10:{name:"Дели-град", emoji:"➗", type:"station"},
+  15:{name:"Сравни-град", emoji:"⚖️", type:"station"},
+  20:{name:"Остаток-сити", emoji:"🎒", type:"station"},
+  25:{name:"Победная", emoji:"🏁", type:"finish"}
+};
+const DEFAULT_EMOJIS = ["🌸","🌼","🌻","🍀","🌈","⭐","🎈","🎨","🦋","🍎","🍒","🍓","🚃","🚃","🚃","🚃","🚃","🚃","🚃","🚃"];
+const PLAYER_COLORS = ["#ff6b9d", "#4fc3f7", "#7ed957", "#b39ddb"];
+const TOTAL_CELLS = 25;
+
+let state = {
+  players: [],
+  currentPlayerIdx: 0,
+  questionsLeft: [],
+  locked: false,
+  gameOver: false
+};
+
+// ========== SETUP ==========
+const countBtns = document.querySelectorAll('.count-btn');
+const namesContainer = document.getElementById('names-container');
+let playerCount = 2;
+
+function renderNameInputs() {
+  namesContainer.innerHTML = '';
+  for (let i = 0; i < playerCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'name-input';
+    row.innerHTML = `
+      <div class="color-dot" style="background:${PLAYER_COLORS[i]}"></div>
+      <input type="text" id="name-${i}" placeholder="Имя игрока ${i+1}" maxlength="12" value="Игрок ${i+1}">
+    `;
+    namesContainer.appendChild(row);
+  }
+}
+countBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    countBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    playerCount = parseInt(btn.dataset.count);
+    renderNameInputs();
+  });
+});
+renderNameInputs();
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  const players = [];
+  for (let i = 0; i < playerCount; i++) {
+    const name = document.getElementById(`name-${i}`).value.trim() || `Игрок ${i+1}`;
+    players.push({ name, color: PLAYER_COLORS[i], position: 1, score: 0 });
+  }
+  state.players = players;
+  state.currentPlayerIdx = 0;
+  state.questionsLeft = [...Array(QUESTIONS.length).keys()];
+  state.locked = false;
+  state.gameOver = false;
+  startGame();
+});
+
+// ========== GAME ==========
+function startGame() {
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('final-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  buildBoard();
+  renderTokens();
+  updateUI();
+}
+
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  const order = [];
+  for (let row = 0; row < 5; row++) {
+    const cellsInRow = [];
+    for (let col = 0; col < 5; col++) {
+      const idx = row * 5 + col;
+      let cellNum;
+      if (row % 2 === 0) cellNum = idx + 1;
+      else cellNum = row * 5 + (5 - col);
+      cellsInRow.push({ row, col, cellNum });
+    }
+    if (row % 2 === 1) cellsInRow.reverse();
+    order.push(...cellsInRow);
+  }
+  const cellsByRowCol = {};
+  order.forEach(o => { cellsByRowCol[`${o.row}-${o.col}`] = o.cellNum; });
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 5; col++) {
+      const num = cellsByRowCol[`${row}-${col}`];
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.num = num;
+      const st = STATIONS[num];
+      if (st) {
+        cell.classList.add(st.type);
+        cell.innerHTML = `<div class="emoji">${st.emoji}</div><div class="num">${num}</div><div style="font-size:0.65rem;">${st.name}</div>`;
+      } else {
+        const em = DEFAULT_EMOJIS[(num-1) % DEFAULT_EMOJIS.length];
+        cell.innerHTML = `<div class="emoji">${em}</div><div class="num">${num}</div>`;
+      }
+      board.appendChild(cell);
+    }
+  }
+}
+
+function getCellElement(num) {
+  return document.querySelector(`.cell[data-num="${num}"]`);
+}
+
+function renderTokens() {
+  const layer = document.getElementById('tokens-layer');
+  layer.innerHTML = '';
+  const byCell = {};
+  state.players.forEach((p, i) => {
+    if (!byCell[p.position]) byCell[p.position] = [];
+    byCell[p.position].push({ player: p, idx: i });
+  });
+  Object.entries(byCell).forEach(([cellNum, arr]) => {
+    const cellEl = getCellElement(parseInt(cellNum));
+    if (!cellEl) return;
+    const boardRect = document.getElementById('board').getBoundingClientRect();
+    const cellRect = cellEl.getBoundingClientRect();
+    const offsetX = cellRect.left - boardRect.left;
+    const offsetY = cellRect.top - boardRect.top;
+    const cellW = cellRect.width;
+    const cellH = cellRect.height;
+    arr.forEach((item, k) => {
+      const tok = document.createElement('div');
+      tok.className = 'token';
+      tok.style.background = item.player.color;
+      tok.textContent = item.idx + 1;
+      const cols = Math.ceil(Math.sqrt(arr.length));
+      const rowI = Math.floor(k / cols);
+      const colI = k % cols;
+      const rows = Math.ceil(arr.length / cols);
+      const stepX = cellW / (cols + 1);
+      const stepY = cellH / (rows + 1);
+      const x = offsetX + stepX * (colI + 1) - tok.offsetWidth/2;
+      const y = offsetY + stepY * (rowI + 1) - tok.offsetHeight/2;
+      tok.style.left = x + 'px';
+      tok.style.top = y + 'px';
+      if (item.idx === state.currentPlayerIdx && !state.gameOver) {
+        tok.classList.add('current');
+      }
+      layer.appendChild(tok);
+    });
+  });
+}
+
+function updateUI() {
+  const cp = state.players[state.currentPlayerIdx];
+  const cpEl = document.getElementById('current-player');
+  cpEl.textContent = cp.name;
+  cpEl.style.color = cp.color;
+  const posEl = document.getElementById('positions');
+  posEl.innerHTML = '';
+  state.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'pos-row' + (i === state.currentPlayerIdx ? ' active' : '');
+    row.innerHTML = `
+      <div class="color-dot" style="background:${p.color}; width:22px; height:22px;"></div>
+      <div style="flex:1;">${p.name}</div>
+      <div>📍 ${p.position}/${TOTAL_CELLS}</div>
+    `;
+    posEl.appendChild(row);
+  });
+  const dice = document.getElementById('dice');
+  dice.disabled = state.locked || state.gameOver;
+  renderTokens();
+}
+
+// ========== DICE ==========
+const diceEl = document.getElementById('dice');
+diceEl.addEventListener('click', () => {
+  if (state.locked || state.gameOver) return;
+  rollDice();
+});
+
+function rollDice() {
+  state.locked = true;
+  updateUI();
+  diceEl.classList.add('rolling');
+  let ticks = 0;
+  const interval = setInterval(() => {
+    diceEl.textContent = Math.floor(Math.random() * 6) + 1;
+    ticks++;
+    if (ticks > 10) {
+      clearInterval(interval);
+      const result = Math.floor(Math.random() * 6) + 1;
+      diceEl.textContent = result;
+      diceEl.classList.remove('rolling');
+      setTimeout(() => movePlayer(result), 300);
+    }
+  }, 80);
+}
+
+function movePlayer(steps) {
+  const player = state.players[state.currentPlayerIdx];
+  const oldPos = player.position;
+  let newPos = oldPos + steps;
+  if (newPos > TOTAL_CELLS) newPos = TOTAL_CELLS;
+  player.position = newPos;
+  renderTokens();
+  setTimeout(() => {
+    if (newPos === TOTAL_CELLS) {
+      finishGame();
+      return;
+    }
+    showQuestion(newPos, oldPos);
+  }, 600);
+}
+
+// ========== QUESTION ==========
+function getRandomQuestion() {
+  if (state.questionsLeft.length === 0) {
+    state.questionsLeft = [...Array(QUESTIONS.length).keys()];
+  }
+  const idx = Math.floor(Math.random() * state.questionsLeft.length);
+  const qIdx = state.questionsLeft.splice(idx, 1)[0];
+  return QUESTIONS[qIdx];
+}
+
+function showQuestion(cellNum, oldPos) {
+  const q = getRandomQuestion();
+  const modal = document.getElementById('question-modal');
+  const st = STATIONS[cellNum];
+  document.getElementById('q-title').textContent =
+    `🚉 Станция №${cellNum}` + (st ? ` — ${st.name} ${st.emoji}` : '');
+  document.getElementById('q-text').textContent = q.q;
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = String.fromCharCode(65 + i) + '. ' + opt;
+    btn.addEventListener('click', () => handleAnswer(i, q, cellNum, oldPos));
+    optsEl.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next-turn-btn').style.display = 'none';
+  modal.classList.add('active');
+}
+
+function handleAnswer(chosen, q, cellNum, oldPos) {
+  const opts = document.querySelectorAll('.option-btn');
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  const player = state.players[state.currentPlayerIdx];
+  if (chosen === q.correct) {
+    opts[chosen].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = `✅ <b>Верно!</b> ${player.name} остаётся на станции №${cellNum}.<br><small>${q.exp}</small>`;
+  } else {
+    opts[chosen].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    player.position = oldPos;
+    fb.className = 'feedback bad show';
+    fb.innerHTML = `❌ <b>Неверно!</b> ${player.name} возвращается на станцию №${oldPos}.<br>
+      <b>Правильный ответ:</b> ${String.fromCharCode(65 + q.correct)}. ${q.opts[q.correct]}<br>
+      <small>${q.exp}</small>`;
+    renderTokens();
+  }
+  document.getElementById('next-turn-btn').style.display = 'block';
+}
+
+document.getElementById('next-turn-btn').addEventListener('click', () => {
+  document.getElementById('question-modal').classList.remove('active');
+  state.currentPlayerIdx = (state.currentPlayerIdx + 1) % state.players.length;
+  state.locked = false;
+  updateUI();
+});
+
+// ========== FINISH ==========
+function finishGame() {
+  state.gameOver = true;
+  const winner = state.players[state.currentPlayerIdx];
+  setTimeout(() => {
+    document.getElementById('game-screen').classList.remove('active');
+    document.getElementById('question-modal').classList.remove('active');
+    document.getElementById('final-screen').classList.add('active');
+    document.getElementById('winner-name').innerHTML =
+      `🎉 Победил(а) <span style="color:${winner.color}">${winner.name}</span>! 🎉`;
+    const list = document.getElementById('final-list');
+    list.innerHTML = '<h2>🏅 Итоги заезда:</h2>';
+    const sorted = [...state.players].sort((a,b) => b.position - a.position);
+    sorted.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'final-row' + (i === 0 ? ' gold' : '');
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎖️';
+      row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:1.5rem;">${medal}</span>
+          <div class="color-dot" style="background:${p.color}; width:22px; height:22px;"></div>
+          <b>${p.name}</b>
+        </div>
+        <div>📍 ${p.position}/${TOTAL_CELLS}</div>
+      `;
+      list.appendChild(row);
+    });
+  }, 800);
+}
+
+// ========== RESTART ==========
+function restart() {
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('final-screen').classList.remove('active');
+  document.getElementById('setup-screen').classList.add('active');
+}
+document.getElementById('restart-btn').addEventListener('click', restart);
+document.getElementById('play-again-btn').addEventListener('click', restart);
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('game-screen').classList.contains('active')) {
+    renderTokens();
+  }
+});
+</script>
+</body>
+</html>
